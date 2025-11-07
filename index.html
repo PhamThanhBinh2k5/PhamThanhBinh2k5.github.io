@@ -309,18 +309,6 @@
 
     // animate
     const clock = new THREE.Clock();
-    function animate() {
-      requestAnimationFrame(animate);
-      const t = clock.getElapsedTime();
-
-      // slow rotation of earth group
-      earthGroup.rotation.y = t * 0.12;
-      // atmosphere gentle bob
-      atmosphere.rotation.y = t * 0.08;
-
-      controls.update();
-      renderer.render(scene, camera);
-    }
     // Sao băng
 function createMeteor() {
   const meteor = document.createElement('div');
@@ -361,8 +349,7 @@ function animate() {
 }
 
   // hướng ánh sáng thay đổi theo vị trí chuột
-  dir.position.set(x * 5, y * 3, 5).normalize().multiplyScalar(5);
-});
+ 
 
 // === Sao băng thật bằng Three.js ===
 const meteors = [];
