@@ -321,7 +321,98 @@
       controls.update();
       renderer.render(scene, camera);
     }
-    animate();
+    // Sao băng
+function createMeteor() {
+  const meteor = document.createElement('div');
+  meteor.style.position = 'fixed';
+  meteor.style.width = '2px';
+  meteor.style.height = '80px';
+  meteor.style.background = 'linear-gradient(white, transparent)';
+  meteor.style.opacity = '0.7';
+  meteor.style.transform = 'rotate(45deg)';
+  meteor.style.left = Math.random() * window.innerWidth + 'px';
+  meteor.style.top = Math.random() * window.innerHeight * 0.5 + 'px';
+  meteor.style.pointerEvents = 'none';
+  meteor.style.zIndex = 1;
+  document.body.appendChild(meteor);
+
+  meteor.animate([
+    { transform: 'translate(0, 0) rotate(45deg)', opacity: 0.8 },
+    { transform: 'translate(-200px, 200px) rotate(45deg)', opacity: 0 }
+  ], {
+    duration: 1500,
+    easing: 'ease-out'
+  });
+
+  setTimeout(() => meteor.remove(), 1500);
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  const t = clock.getElapsedTime();
+  const delta = clock.getDelta();
+
+  earthGroup.rotation.y = t * 0.12;
+  atmosphere.rotation.y = t * 0.08;
+
+  updateMeteors(delta); // cập nhật sao băng
+  controls.update();
+  renderer.render(scene, camera);
+}
+
+  // hướng ánh sáng thay đổi theo vị trí chuột
+  dir.position.set(x * 5, y * 3, 5).normalize().multiplyScalar(5);
+});
+
+// === Sao băng thật bằng Three.js ===
+const meteors = [];
+
+function spawnMeteor() {
+  const geometry = new THREE.BufferGeometry();
+  const positions = new Float32Array(6); // 2 điểm (x1,y1,z1,x2,y2,z2)
+  const startX = (Math.random() - 0.5) * 40;
+  const startY = Math.random() * 20 + 10;
+  const startZ = -30;
+
+  const endX = startX - 10;
+  const endY = startY - 10;
+  const endZ = startZ + 20;
+
+  positions.set([startX, startY, startZ, endX, endY, endZ]);
+  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+  const material = new THREE.LineBasicMaterial({
+    color: 0xffffff,
+    transparent: true,
+    opacity: 0.8,
+  });
+
+  const meteor = new THREE.Line(geometry, material);
+  meteor.userData = { life: 1.0 };
+  scene.add(meteor);
+  meteors.push(meteor);
+}
+
+function updateMeteors(delta) {
+  for (let i = meteors.length - 1; i >= 0; i--) {
+    const m = meteors[i];
+    m.position.x -= delta * 25;
+    m.position.y -= delta * 25;
+    m.position.z += delta * 40;
+    m.userData.life -= delta * 1.2;
+    m.material.opacity = m.userData.life;
+    if (m.userData.life <= 0) {
+      scene.remove(m);
+      meteors.splice(i, 1);
+    }
+  }
+}
+
+// Tạo sao băng ngẫu nhiên mỗi vài giây
+setInterval(() => {
+  if (Math.random() > 0.7) spawnMeteor();
+}, 2000);
+
   </script>
 </body>
 </html>
